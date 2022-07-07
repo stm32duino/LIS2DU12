@@ -31,7 +31,7 @@ void setup() {
 void loop() {
   sensor.Get_X_Axes(acceleration);
   Serial.printf(
-    "Id:%d, X[mg]:%d, Y[mg]:%d, Z[mg]:%d\r\n",
+    "Id:%d, X:%d, Y:%d, Z:%d\r\n",
     sensor_id, acceleration[0], acceleration[1], acceleration[2]);
   blink(LED_BUILTIN);
 }
