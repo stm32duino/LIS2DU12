@@ -586,25 +586,25 @@ LIS2DU12StatusTypeDef LIS2DU12Sensor::Enable_DRDY_Interrupt()
 {
   lis2du12_int_mode_t mode;
 
-  if (lis2du12_interrupt_mode_get(&(pObj->Ctx), &mode) != LIS2DU12_OK) {
+  if (lis2du12_interrupt_mode_get(&reg_ctx, &mode) != LIS2DU12_OK) {
     return LIS2DU12_ERROR;
   }
 
   mode.drdy_latched = PROPERTY_DISABLE;
 
-  if (lis2du12_interrupt_mode_set(&(pObj->Ctx), &mode) != LIS2DU12_OK) {
+  if (lis2du12_interrupt_mode_set(&reg_ctx, &mode) != LIS2DU12_OK) {
     return LIS2DU12_ERROR;
   }
 
   lis2du12_pin_int2_route_t int2_route;
 
-  if (lis2du12_pin_int2_route_get(&(pObj->Ctx), &int2_route) != LIS2DU12_OK) {
+  if (lis2du12_pin_int2_route_get(&reg_ctx, &int2_route) != LIS2DU12_OK) {
     return LIS2DU12_ERROR;
   }
 
   int2_route.drdy_xl = PROPERTY_ENABLE;
 
-  if (lis2du12_pin_int2_route_set(&(pObj->Ctx), &int2_route) != LIS2DU12_OK) {
+  if (lis2du12_pin_int2_route_set(&reg_ctx, &int2_route) != LIS2DU12_OK) {
     return LIS2DU12_ERROR;
   }
 
@@ -658,7 +658,7 @@ LIS2DU12StatusTypeDef LIS2DU12Sensor::Set_X_SelfTest(uint8_t Val)
       return LIS2DU12_ERROR;
   }
 
-  if (lis2du12_self_test_sign_set(&(pObj->Ctx), reg) != LIS2DU12_OK) {
+  if (lis2du12_self_test_sign_set(&reg_ctx, reg) != LIS2DU12_OK) {
     return LIS2DU12_ERROR;
   }
 
