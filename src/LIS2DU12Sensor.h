@@ -4,7 +4,7 @@
  * @author  SRA
  * @version V1.0.0
  * @date    July 2022
- * @brief   Abstract Class of a LIS2DU12 pressure sensor.
+ * @brief   Abstract Class of a LIS2DU12 accelerometer sensor.
  ******************************************************************************
  * @attention
  *
@@ -44,12 +44,18 @@
 
 /* Includes ------------------------------------------------------------------*/
 
-
-/* Defines -------------------------------------------------------------------*/
-
 #include "Wire.h"
 #include "SPI.h"
 #include "lis2du12_reg.h"
+#include <cstdint>
+
+
+/* Defines -------------------------------------------------------------------*/
+
+#define LIS2DU12_ACC_SENSITIVITY_FOR_FS_2G   0.976f  /**< Sensitivity value for 2g full scale, Low-power1 mode [mg/LSB] */
+#define LIS2DU12_ACC_SENSITIVITY_FOR_FS_4G   1.952f  /**< Sensitivity value for 4g full scale, Low-power1 mode [mg/LSB] */
+#define LIS2DU12_ACC_SENSITIVITY_FOR_FS_8G   3.904f  /**< Sensitivity value for 8g full scale, Low-power1 mode [mg/LSB] */
+#define LIS2DU12_ACC_SENSITIVITY_FOR_FS_16G  7.808f  /**< Sensitivity value for 16g full scale, Low-power1 mode [mg/LSB] */
 
 
 /* Typedefs ------------------------------------------------------------------*/
@@ -59,6 +65,11 @@ typedef enum {
   LIS2DU12_ERROR = -1
 } LIS2DU12StatusTypeDef;
 
+typedef enum {
+  LIS2DU12_ULTRA_LOW_POWER_DISABLE,
+  LIS2DU12_ULTRA_LOW_POWER_ENABLE
+} LIS2DU12_Ultra_Low_Power_t;
+
 
 /* Class Declaration ---------------------------------------------------------*/
 
@@ -67,14 +78,27 @@ typedef enum {
  */
 class LIS2DU12Sensor {
   public:
-    LIS2DU12Sensor(TwoWire *i2c) : dev_i2c(i2c) {};
+    LIS2DU12Sensor(TwoWire *i2c, uint8_t address = LIS2DU12_I2C_ADD_H);
     LIS2DU12Sensor(SPIClass *spi, int cs_pin, uint32_t spi_speed = 2000000);
-
-    LIS2DU12StatusTypeDef ReadID(uint8_t *Id)
-    {
-      *Id = LIS2DU12_ERROR;
-      return LIS2DU12_ERROR;
-    };
+    LIS2DU12StatusTypeDef begin();
+    LIS2DU12StatusTypeDef end();
+    LIS2DU12StatusTypeDef Enable_X();
+    LIS2DU12StatusTypeDef Disable_X();
+    LIS2DU12StatusTypeDef ReadID(uint8_t *Id);
+    LIS2DU12StatusTypeDef Get_X_Axes(int32_t *Acceleration);
+    LIS2DU12StatusTypeDef Get_X_AxesRaw(int16_t *value);
+    LIS2DU12StatusTypeDef Get_X_Sensitivity(float *Sensitivity);
+    LIS2DU12StatusTypeDef Get_X_ODR(float *Ord);
+    LIS2DU12StatusTypeDef Set_X_ODR(float Ord, LIS2DU12_Ultra_Low_Power_t Power = LIS2DU12_ULTRA_LOW_POWER_DISABLE);
+    LIS2DU12StatusTypeDef Get_X_FS(float *FullScale);
+    LIS2DU12StatusTypeDef Set_X_FS(float FullScale);
+    LIS2DU12StatusTypeDef Set_Interrupt_Latch(uint8_t Status);
+    LIS2DU12StatusTypeDef Enable_DRDY_Interrupt();
+    LIS2DU12StatusTypeDef Disable_DRDY_Interrupt();
+    LIS2DU12StatusTypeDef Set_X_SelfTest(uint8_t Val);
+    LIS2DU12StatusTypeDef Get_X_DRDY_Status(uint8_t *Status);
+    LIS2DU12StatusTypeDef ReadReg(uint8_t Reg, uint8_t *Data);
+    LIS2DU12StatusTypeDef WriteReg(uint8_t Reg, uint8_t Data);
 
     /**
      * @brief Utility function to read data.
@@ -168,25 +192,31 @@ class LIS2DU12Sensor {
     }
 
   private:
+    LIS2DU12StatusTypeDef Set_X_ODR_When_Enabled(float Ord, LIS2DU12_Ultra_Low_Power_t Power = LIS2DU12_ULTRA_LOW_POWER_DISABLE);
+    LIS2DU12StatusTypeDef Set_X_ODR_When_Disabled(float Ord, LIS2DU12_Ultra_Low_Power_t Power = LIS2DU12_ULTRA_LOW_POWER_DISABLE);
+
     /* Helper classes. */
-    TwoWire  *dev_i2c;
+    TwoWire *dev_i2c;
     SPIClass *dev_spi;
 
-    uint8_t enabled;
-
     /* Configuration */
-    uint8_t  address;
-    int      cs_pin;
+    uint8_t address;
+    int cs_pin;
     uint32_t spi_speed;
 
+    uint8_t X_enabled;
+    float X_odr;
+    LIS2DU12_Ultra_Low_Power_t X_ultra_low_power;
+
+    uint8_t initialized;
     lis2du12_ctx_t reg_ctx;
 };
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-int32_t LPS22DF_io_write(void *handle, uint8_t WriteAddr, uint8_t *pBuffer, uint16_t nBytesToWrite);
-int32_t LPS22DF_io_read(void *handle, uint8_t ReadAddr, uint8_t *pBuffer, uint16_t nBytesToRead);
+int32_t LIS2DU12_io_write(void *handle, uint8_t WriteAddr, uint8_t *pBuffer, uint16_t nBytesToWrite);
+int32_t LIS2DU12_io_read(void *handle, uint8_t ReadAddr, uint8_t *pBuffer, uint16_t nBytesToRead);
 #ifdef __cplusplus
 }
 #endif
