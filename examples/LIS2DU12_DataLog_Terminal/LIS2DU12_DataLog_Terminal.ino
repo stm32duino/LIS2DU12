@@ -12,7 +12,7 @@ void setup()
 
 void loop()
 {
-  delay(1000);//blink(LED_BUILTIN);
+  blink(LED_BUILTIN);
 }
 
 void blink(uint8_t pin)
