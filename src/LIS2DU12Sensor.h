@@ -47,7 +47,6 @@
 #include "Wire.h"
 #include "SPI.h"
 #include "lis2du12_reg.h"
-#include <cstdint>
 
 
 /* Defines -------------------------------------------------------------------*/
